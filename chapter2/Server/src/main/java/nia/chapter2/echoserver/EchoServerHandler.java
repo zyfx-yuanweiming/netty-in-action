@@ -13,19 +13,23 @@ import io.netty.util.CharsetUtil;
  *
  * @author <a href="mailto:norman.maurer@gmail.com">Norman Maurer</a>
  */
+// 标示一个ChannelHandler 可以被多 个Channel 安全地 共享
 @Sharable
 public class EchoServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ByteBuf in = (ByteBuf) msg;
+        // 将消息 记录到 控制台
         System.out.println(
                 "Server received: " + in.toString(CharsetUtil.UTF_8));
+        // 将接收到的消息 写给发送者，而 不冲刷出站消息
         ctx.write(in);
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx)
             throws Exception {
+        // 将未决消息冲刷到 远程节点，并且关 闭该Channel
         ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
                 .addListener(ChannelFutureListener.CLOSE);
     }
@@ -33,7 +37,9 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx,
         Throwable cause) {
+        // 打印异常 栈跟踪
         cause.printStackTrace();
+        // 关闭该 Channel
         ctx.close();
     }
 }

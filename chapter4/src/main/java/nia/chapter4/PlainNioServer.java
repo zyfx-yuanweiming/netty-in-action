@@ -21,13 +21,26 @@ public class PlainNioServer {
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
         ServerSocket ss = serverChannel.socket();
+        // 将服务器绑定
+        //到选定的端口
         InetSocketAddress address = new InetSocketAddress(port);
         ss.bind(address);
+        // 打开
+        //Selector
+        //来处理
+        //Channel
         Selector selector = Selector.open();
+        // 将ServerSocket
+        //注册到
+        //Selector 以接
+        //受连接
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
         final ByteBuffer msg = ByteBuffer.wrap("Hi!\r\n".getBytes());
         for (;;){
             try {
+                // 等待需要处理的新事
+                //件；阻塞将一直持续到
+                //下一个传入事件
                 selector.select();
             } catch (IOException ex) {
                 ex.printStackTrace();
